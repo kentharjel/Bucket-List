@@ -1,67 +1,86 @@
 import { LinearGradient } from "expo-linear-gradient";
 import { Link, router } from "expo-router";
 import { useState } from "react";
-import { Alert, Keyboard, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { Alert, BackHandler, Keyboard, Platform, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { useAccount } from "../hooks/useAccount";
 
 const SignUp = () => {
-    const [username, setUsername] = useState('')
-    const [password, setPassword] = useState('')
-    const { createAccount } = useAccount()
+  const [username, setUsername] = useState('')
+  const [password, setPassword] = useState('')
+  const { createAccount } = useAccount()
 
-    const signUpButton = async () => {
-      Keyboard.dismiss()
+  const signUpButton = async () => {
+    Keyboard.dismiss()
 
-      if (!username.trim() || !password.trim()) {
-        Alert.alert("Error!", "Username and Password cannot be empty.");
-        return;
+    if (!username.trim() || !password.trim()) {
+      Alert.alert("Error!", "Username and Password cannot be empty.");
+      return;
       }
 
-        await createAccount({ username, password });
-        setUsername("");
-        setPassword("");
-        router.push('/success')
+      await createAccount({ username, password });
+      setUsername("");
+      setPassword("");
+      router.push('/success')
+  }
+
+  const exitApp = () => {
+    if (Platform.OS === "android") {
+      Alert.alert(
+        "Exit App",
+        "Are you sure you want to exit?",
+        [
+          { text: "Cancel", style: "cancel" },
+          { text: "Yes", onPress: () => BackHandler.exitApp() }
+        ],
+        { cancelable: true }
+      )
     }
-    
-    return (
+  }
 
-        <LinearGradient 
-        colors={["#ffffff", "#000000"]}
-        style={styles.container}
-        start={{ x: 0, y: 2}}
-        end={{ x:0, y:0 }}
-        >
-        <View style={styles.name_position}>
-            <Text style={styles.name}>BUCKET LIST</Text>
-        </View>
+  return (
 
-        <View style={styles.signup}>
-            <Text style={styles.signup_text}>Sign Up</Text>
+    <LinearGradient 
+      colors={["#ffffff", "#000000"]}
+      style={styles.container}
+      start={{ x: 0, y: 2}}
+      end={{ x:0, y:0 }}
+    >
 
-            <TextInput 
-            style={styles.input} 
-            placeholder="Create Username"
-            value={username}
-            onChangeText={setUsername}
-            />
+      <View style={styles.name_position}>
+        <Text style={styles.name}>BUCKET LIST</Text>
+      </View>
+
+      <View style={styles.signup}>
+        <Text style={styles.signup_text}>Sign Up</Text>
+
+        <TextInput 
+          style={styles.input} 
+          placeholder="Create Username"
+          value={username}
+          onChangeText={setUsername}
+        />
             
-            <TextInput 
-            style={styles.input} 
-            placeholder="Create Password"
-            value={password}
-            onChangeText={setPassword}
-            />
+        <TextInput 
+          style={styles.input} 
+          placeholder="Create Password"
+          value={password}
+          onChangeText={setPassword}
+        />
 
-            <TouchableOpacity onPress={signUpButton} style={styles.button}>
-                <Text style={{color: 'white', fontSize: 18}}>SIGN UP</Text>
-            </TouchableOpacity>
+        <TouchableOpacity onPress={signUpButton} style={styles.button}>
+          <Text style={{color: 'white', fontSize: 18}}>SIGN UP</Text>
+        </TouchableOpacity>
 
-            <Text style={styles.signin}>Already have an account? <Link style={{ color: 'skyblue' }} href={'/'}>Sign In</Link></Text>
-        </View>
-        </LinearGradient>
-        
-    );
-    }
+        <Text style={styles.signin}>Already have an account? <Link style={{ color: 'skyblue' }} href={'/'}>Sign In</Link></Text>
+      </View>
+
+      <TouchableOpacity onPress={exitApp} style={styles.exit_button}>
+        <Text style={{ color: "white", fontSize: 18 }}>EXIT</Text>
+      </TouchableOpacity>
+    </LinearGradient>
+
+    )
+}
 
 const styles = StyleSheet.create({
   container : {
@@ -108,6 +127,10 @@ const styles = StyleSheet.create({
     fontSize: 18,
     marginVertical: 15,
     color: 'white'
+  },
+  exit_button: {
+    position: 'absolute',
+    bottom: 100
   }
 })
 

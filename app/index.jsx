@@ -2,7 +2,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { Link, router } from "expo-router";
 import { useState } from "react";
-import { Alert, Keyboard, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { Alert, BackHandler, Keyboard, Platform, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { useAccount } from "../hooks/useAccount";
 
 const SignIn = () => {
@@ -22,6 +22,20 @@ const SignIn = () => {
       router.push("./(tabs)/list");
     } else {
       Alert.alert("Login Failed", "Wrong Username or Password");
+    }
+  };
+
+  const exitApp = () => {
+    if (Platform.OS === "android") {
+      Alert.alert(
+        "Exit App",
+        "Are you sure you want to exit?",
+        [
+          { text: "Cancel", style: "cancel" },
+          { text: "Yes", onPress: () => BackHandler.exitApp() }
+        ],
+        { cancelable: true }
+      );
     }
   };
 
@@ -74,6 +88,10 @@ const SignIn = () => {
           </Link>
         </Text>
       </View>
+
+      <TouchableOpacity onPress={exitApp} style={styles.exit_button}>
+          <Text style={{ color: "white", fontSize: 18 }}>EXIT</Text>
+      </TouchableOpacity>
     </LinearGradient>
   );
 };
@@ -126,8 +144,12 @@ const styles = StyleSheet.create({
   signup: { 
     fontSize: 18, 
     marginVertical: 15, 
-    color: "white" 
+    color: "white",
   },
+  exit_button: {
+    position: 'absolute',
+    bottom: 100
+  }
 });
 
 export default SignIn;
