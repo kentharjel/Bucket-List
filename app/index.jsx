@@ -1,3 +1,4 @@
+import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { Link, router } from "expo-router";
 import { useState } from "react";
@@ -7,13 +8,13 @@ import { useAccount } from "../hooks/useAccount";
 const SignIn = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [secure, setSecure] = useState(true); 
 
-  // ✅ pull fetchAccount from context
   const { fetchAccount } = useAccount();
 
   const signInButton = async () => {
-    const success = await fetchAccount({ username, password });
     Keyboard.dismiss();
+    const success = await fetchAccount({ username, password });
 
     if (success) {
       setUsername("");
@@ -45,13 +46,22 @@ const SignIn = () => {
           onChangeText={setUsername}
         />
 
-        <TextInput
-          style={styles.input}
-          placeholder="Password"
-          secureTextEntry
-          value={password}
-          onChangeText={setPassword}
-        />
+        <View style={styles.passwordContainer}>
+          <TextInput
+            style={styles.passwordInput}
+            placeholder="Password"
+            secureTextEntry={secure}
+            value={password}
+            onChangeText={setPassword}
+          />
+          <TouchableOpacity onPress={() => setSecure(!secure)}>
+            <Ionicons
+              name={secure ? "eye-off" : "eye"}
+              size={22}
+              color="gray"
+            />
+          </TouchableOpacity>
+        </View>
 
         <TouchableOpacity onPress={signInButton} style={styles.button}>
           <Text style={{ color: "white", fontSize: 18 }}>SIGN IN</Text>
@@ -84,6 +94,22 @@ const styles = StyleSheet.create({
     marginVertical: 2,
     fontSize: 18,
   },
+  passwordContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    width: 250,
+    height: 45,
+    borderWidth: 1,
+    borderColor: "#000",
+    backgroundColor: "#fff",
+    borderRadius: 10,
+    marginVertical: 2,
+    paddingHorizontal: 10,
+  },
+  passwordInput: {
+    flex: 1,
+    fontSize: 18,
+  },
   signin_text: {
     fontSize: 25,
     marginBottom: 10,
@@ -97,7 +123,11 @@ const styles = StyleSheet.create({
     marginTop: 10,
     borderRadius: 10,
   },
-  signup: { fontSize: 18, marginVertical: 15, color: "white" },
+  signup: { 
+    fontSize: 18, 
+    marginVertical: 15, 
+    color: "white" 
+  },
 });
 
 export default SignIn;

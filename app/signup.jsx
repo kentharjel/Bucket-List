@@ -1,7 +1,7 @@
 import { LinearGradient } from "expo-linear-gradient";
 import { Link, router } from "expo-router";
 import { useState } from "react";
-import { Keyboard, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { Alert, Keyboard, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { useAccount } from "../hooks/useAccount";
 
 const SignUp = () => {
@@ -10,15 +10,19 @@ const SignUp = () => {
     const { createAccount } = useAccount()
 
     const signUpButton = async () => {
-        await createAccount({
-            username,
-            password
-        })
-        setUsername('')
-        setPassword('')
-        Keyboard.dismiss()
-        router.push('./success')
+      Keyboard.dismiss()
+
+      if (!username.trim() || !password.trim()) {
+        Alert.alert("Error!", "Username and Password cannot be empty.");
+        return;
+      }
+
+        await createAccount({ username, password });
+        setUsername("");
+        setPassword("");
+        router.push('/success')
     }
+
 
     return (
 
