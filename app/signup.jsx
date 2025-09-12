@@ -22,8 +22,6 @@ const SignUp = () => {
         setPassword("");
         router.push('/success')
     }
-
-
     return (
 
         <LinearGradient 
