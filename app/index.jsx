@@ -6,22 +6,22 @@ import { Alert, BackHandler, Keyboard, Platform, StyleSheet, Text, TextInput, To
 import { useAccount } from "../hooks/useAccount";
 
 const SignIn = () => {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [secure, setSecure] = useState(true); 
+  const [username, setUsername] = useState("")
+  const [password, setPassword] = useState("")
+  const [secure, setSecure] = useState(true)
 
-  const { fetchAccount } = useAccount();
+  const { fetchAccount } = useAccount()
 
   const signInButton = async () => {
     Keyboard.dismiss();
-    const success = await fetchAccount({ username, password });
+    const success = await fetchAccount({ username, password })
 
     if (success) {
       setUsername("");
       setPassword("");
-      router.push("./(tabs)/list");
+      router.push("./(tabs)/list")
     } else {
-      Alert.alert("Login Failed", "Wrong Username or Password");
+      Alert.alert("Login Failed", "Wrong Username or Password")
     }
   };
 
@@ -35,7 +35,7 @@ const SignIn = () => {
           { text: "Yes", onPress: () => BackHandler.exitApp() }
         ],
         { cancelable: true }
-      );
+      )
     }
   };
 

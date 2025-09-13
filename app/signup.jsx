@@ -1,5 +1,5 @@
 import { LinearGradient } from "expo-linear-gradient";
-import { Link, router } from "expo-router";
+import { Link, useRouter } from "expo-router";
 import { useState } from "react";
 import { Alert, BackHandler, Keyboard, Platform, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { useAccount } from "../hooks/useAccount";
@@ -8,6 +8,7 @@ const SignUp = () => {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const { createAccount } = useAccount()
+  const router = useRouter();
 
   const signUpButton = async () => {
     Keyboard.dismiss()

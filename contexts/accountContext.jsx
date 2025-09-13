@@ -7,6 +7,7 @@ export const accountContext = createContext()
 export function AccountProvider ({ children }) {
     const [username, setUsername] = useState('')
     const [password, setPassword] = useState('')
+    const [currentUser, setCurrentUser] = useState('')
 
     async function fetchAccount(accountData) {
         const { username, password } = accountData;
@@ -20,11 +21,15 @@ export function AccountProvider ({ children }) {
             const verify = await getDocs(account);
 
             if (!verify.empty) {
+                setCurrentUser(username);
                 return true;
             } else {
                 return false;
             }
+    }
 
+    async function logout() {
+        setCurrentUser(null)
     }
 
     async function createAccount (accountData) {
@@ -42,7 +47,7 @@ export function AccountProvider ({ children }) {
 
     return(
         <accountContext.Provider
-            value={{username, password, fetchAccount, createAccount, deleteAccount, updateAccount}}
+            value={{username, password, currentUser, fetchAccount, logout, createAccount, deleteAccount, updateAccount}}
         >
             { children }
         </accountContext.Provider>
