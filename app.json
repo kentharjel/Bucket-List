@@ -45,6 +45,12 @@
         "projectId": "9c5bc31b-2d0b-445c-b08e-b45f04864680"
       }
     },
-    "owner": "kentharjel"
+    "owner": "kentharjel",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/9c5bc31b-2d0b-445c-b08e-b45f04864680"
+    }
   }
 }

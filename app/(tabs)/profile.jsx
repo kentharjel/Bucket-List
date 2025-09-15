@@ -14,14 +14,14 @@ export default function Profile() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.headerText}>Profile</Text>
+        <Text style={styles.headerText} allowFontScaling={false}>Profile</Text>
       </View>
 
       <View style={styles.profileRow}>
-        <Ionicons name="person-circle-outline" size={200} color="#ffffff" />
+        <Ionicons name="person-circle-outline" size={175} color="#ffffff"/>
         <View>
-          <Text style={styles.label}>Username:</Text>
-          <Text style={styles.username}>
+          <Text style={styles.label} allowFontScaling={false}>Username:</Text>
+          <Text style={styles.username} allowFontScaling={false}>
             @{currentUser ? currentUser : "Guest"}
           </Text>
         </View>
@@ -31,7 +31,7 @@ export default function Profile() {
 
       <View style={styles.bottomSection}>
         <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
-          <Text style={styles.logoutText}>Log Out</Text>
+          <Text style={styles.logoutText} allowFontScaling={false}>Log Out</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>
@@ -64,7 +64,7 @@ const styles = StyleSheet.create({
     fontWeight: 900
   },
   username: {
-    fontSize: 40,
+    fontSize: 35,
     fontWeight: "700",
     color: "#ffffff",
     marginLeft: 5,

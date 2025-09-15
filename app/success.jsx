@@ -10,15 +10,15 @@ const Success = () => {
             start={{ x:0, y:3 }}
             end={{ x:0, y:0 }}
         >
-            <Text style={styles.first}>You Have</Text>
-            <Text style={styles.second}>Successfully</Text>
-            <Text style={styles.third}>Signed Up!</Text>
+            <Text style={styles.first} allowFontScaling={false}>You Have</Text>
+            <Text style={styles.second} allowFontScaling={false}>Successfully</Text>
+            <Text style={styles.third} allowFontScaling={false}>Signed Up!</Text>
 
             <TouchableOpacity 
                 style={styles.back}
                 onPress={()=> router.push('/')}
             >
-                <Text style={styles.back_text}>Go back to Sign In</Text>
+                <Text style={styles.back_text} allowFontScaling={false}>Go back to Sign In</Text>
             </TouchableOpacity>
         </LinearGradient>
     )
@@ -37,7 +37,7 @@ const styles = StyleSheet.create({
     },
     second: {
         color: 'green',
-        fontSize: 75,
+        fontSize: 70,
         fontWeight: 900
     },
     third: {

@@ -47,16 +47,17 @@ const SignIn = () => {
       end={{ x: 0, y: 0 }}
     >
       <View style={styles.name_position}>
-        <Text style={styles.name}>BUCKET LIST</Text>
+        <Text style={styles.name} allowFontScaling={false}>BUCKET LIST</Text>
       </View>
 
       <View style={styles.signin}>
-        <Text style={styles.signin_text}>Sign In</Text>
+        <Text style={styles.signin_text} allowFontScaling={false}>Sign In</Text>
 
         <TextInput
           style={styles.input}
           placeholder="Username"
           placeholderTextColor='#b4b4b4ff'
+          allowFontScaling={false}
           value={username}
           onChangeText={setUsername}
         />
@@ -66,6 +67,7 @@ const SignIn = () => {
             style={styles.passwordInput}
             placeholder="Password"
             placeholderTextColor='#b4b4b4ff'
+            allowFontScaling={false}
             secureTextEntry={secure}
             value={password}
             onChangeText={setPassword}
@@ -80,10 +82,10 @@ const SignIn = () => {
         </View>
 
         <TouchableOpacity onPress={signInButton} style={styles.button}>
-          <Text style={{ color: "white", fontSize: 18 }}>SIGN IN</Text>
+          <Text style={{ color: "white", fontSize: 18 }} allowFontScaling={false}>SIGN IN</Text>
         </TouchableOpacity>
 
-        <Text style={styles.signup}>
+        <Text style={styles.signup} allowFontScaling={false}>
           Don't have an account?{" "}
           <Link style={{ color: "skyblue" }} href={"./signup"}>
             Sign Up
@@ -92,7 +94,7 @@ const SignIn = () => {
       </View>
 
       <TouchableOpacity onPress={exitApp} style={styles.exit_button}>
-          <Text style={{ color: "white", fontSize: 18 }}>EXIT</Text>
+          <Text style={{ color: "white", fontSize: 18 }} allowFontScaling={false}>EXIT</Text>
       </TouchableOpacity>
     </LinearGradient>
   );

@@ -48,16 +48,17 @@ const SignUp = () => {
     >
 
       <View style={styles.name_position}>
-        <Text style={styles.name}>BUCKET LIST</Text>
+        <Text style={styles.name} allowFontScaling={false}>BUCKET LIST</Text>
       </View>
 
       <View style={styles.signup}>
-        <Text style={styles.signup_text}>Sign Up</Text>
+        <Text style={styles.signup_text} allowFontScaling={false}>Sign Up</Text>
 
         <TextInput 
           style={styles.input} 
           placeholder="Create Username"
           placeholderTextColor='#b4b4b4ff'
+          allowFontScaling={false}
           value={username}
           onChangeText={setUsername}
         />
@@ -66,19 +67,20 @@ const SignUp = () => {
           style={styles.input} 
           placeholder="Create Password"
           placeholderTextColor='#b4b4b4ff'
+          allowFontScaling={false}
           value={password}
           onChangeText={setPassword}
         />
 
         <TouchableOpacity onPress={signUpButton} style={styles.button}>
-          <Text style={{color: 'white', fontSize: 18}}>SIGN UP</Text>
+          <Text style={{color: 'white', fontSize: 18}} allowFontScaling={false}>SIGN UP</Text>
         </TouchableOpacity>
 
-        <Text style={styles.signin}>Already have an account? <Link style={{ color: 'skyblue' }} href={'/'}>Sign In</Link></Text>
+        <Text style={styles.signin} allowFontScaling={false}>Already have an account? <Link style={{ color: 'skyblue' }} href={'/'}>Sign In</Link></Text>
       </View>
 
       <TouchableOpacity onPress={exitApp} style={styles.exit_button}>
-        <Text style={{ color: "white", fontSize: 18 }}>EXIT</Text>
+        <Text style={{ color: "white", fontSize: 18 }} allowFontScaling={false}>EXIT</Text>
       </TouchableOpacity>
     </LinearGradient>
 

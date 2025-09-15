@@ -65,7 +65,7 @@ export default function List() {
     <SafeAreaView style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.headerText}>Bucket List</Text>
+        <Text style={styles.headerText} allowFontScaling={false}>Bucket List</Text>
       </View>
 
       {/* Render list items */}
@@ -84,6 +84,7 @@ export default function List() {
                 styles.listText,
                 item.done && { textDecorationLine: "line-through", color: "#888" },
               ]}
+              allowFontScaling={false}
             >
               {item.text}
             </Text>
