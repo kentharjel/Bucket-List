@@ -56,6 +56,7 @@ const SignIn = () => {
         <TextInput
           style={styles.input}
           placeholder="Username"
+          placeholderTextColor='#b4b4b4ff'
           value={username}
           onChangeText={setUsername}
         />
@@ -64,6 +65,7 @@ const SignIn = () => {
           <TextInput
             style={styles.passwordInput}
             placeholder="Password"
+            placeholderTextColor='#b4b4b4ff'
             secureTextEntry={secure}
             value={password}
             onChangeText={setPassword}
@@ -127,6 +129,7 @@ const styles = StyleSheet.create({
   passwordInput: {
     flex: 1,
     fontSize: 18,
+    color: '#000',
   },
   signin_text: {
     fontSize: 25,

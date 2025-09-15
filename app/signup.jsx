@@ -57,6 +57,7 @@ const SignUp = () => {
         <TextInput 
           style={styles.input} 
           placeholder="Create Username"
+          placeholderTextColor='#b4b4b4ff'
           value={username}
           onChangeText={setUsername}
         />
@@ -64,6 +65,7 @@ const SignUp = () => {
         <TextInput 
           style={styles.input} 
           placeholder="Create Password"
+          placeholderTextColor='#b4b4b4ff'
           value={password}
           onChangeText={setPassword}
         />
