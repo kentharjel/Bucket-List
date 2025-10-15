@@ -1,55 +1,117 @@
-import { addDoc, collection, getDocs, query, where } from "firebase/firestore";
+import {
+    addDoc,
+    collection,
+    deleteDoc,
+    getDocs,
+    query,
+    updateDoc,
+    where,
+} from "firebase/firestore";
 import { createContext, useState } from "react";
 import { db } from "../firebaseConfig";
 
-export const accountContext = createContext()
+export const accountContext = createContext();
 
-export function AccountProvider ({ children }) {
-    const [username, setUsername] = useState('')
-    const [password, setPassword] = useState('')
-    const [currentUser, setCurrentUser] = useState('')
+export function AccountProvider({ children }) {
+  const [currentUser, setCurrentUser] = useState("");
 
-    async function fetchAccount(accountData) {
-        const { username, password } = accountData;
-
-            const account = query(
-                collection(db, "Account"),
-                where("username", "==", username),
-                where("password", "==", password)
-            );
-
-            const verify = await getDocs(account);
-
-            if (!verify.empty) {
-                setCurrentUser(username);
-                return true;
-            } else {
-                return false;
-            }
+  // 🔹 Login
+  async function fetchAccount({ username, password }) {
+    const q = query(
+      collection(db, "Account"),
+      where("username", "==", username),
+      where("password", "==", password)
+    );
+    const verify = await getDocs(q);
+    if (!verify.empty) {
+      setCurrentUser(username);
+      return true;
     }
+    return false;
+  }
 
-    async function logout() {
-        setCurrentUser(null)
-    }
+  // 🔹 Logout
+  async function logout() {
+    setCurrentUser(null);
+  }
 
-    async function createAccount (accountData) {
-        console.log(accountData)
-        await addDoc(collection(db, 'Account'), accountData)
-    }
+  // 🔹 Create new account
+  async function createAccount(accountData) {
+    const check = query(
+      collection(db, "Account"),
+      where("username", "==", accountData.username)
+    );
+    const existing = await getDocs(check);
+    if (!existing.empty) return false;
 
-    async function deleteAccount() {
+    await addDoc(collection(db, "Account"), accountData);
+    setCurrentUser(accountData.username);
+    return true;
+  }
 
-    }
+  // 🔹 Update username
+  async function updateAccount({ oldUsername, newUsername, password }) {
+    const q = query(
+      collection(db, "Account"),
+      where("username", "==", oldUsername),
+      where("password", "==", password)
+    );
+    const snap = await getDocs(q);
 
-    async function updateAccount() {
+    if (snap.empty) return { success: false, message: "Incorrect password" };
 
-    }
+    const userDoc = snap.docs[0];
+    await updateDoc(userDoc.ref, { username: newUsername });
+    setCurrentUser(newUsername);
+    return { success: true, message: "Username updated successfully" };
+  }
 
-    return(
-        <accountContext.Provider
-            value={{username, password, currentUser, fetchAccount, logout, createAccount, deleteAccount, updateAccount}}
-        >
-            { children }
-        </accountContext.Provider>
-    )
+  // 🔹 Change password
+  async function changePassword({ username, currentPassword, newPassword }) {
+    const q = query(
+      collection(db, "Account"),
+      where("username", "==", username),
+      where("password", "==", currentPassword)
+    );
+    const snap = await getDocs(q);
+
+    if (snap.empty) return { success: false, message: "Incorrect current password" };
+
+    const userDoc = snap.docs[0];
+    await updateDoc(userDoc.ref, { password: newPassword });
+    return { success: true, message: "Password updated successfully" };
+  }
+
+  // 🔹 Delete account (password verification)
+  async function deleteAccount({ username, password }) {
+    const q = query(
+      collection(db, "Account"),
+      where("username", "==", username),
+      where("password", "==", password)
+    );
+    const snap = await getDocs(q);
+
+    if (snap.empty) return { success: false, message: "Incorrect password" };
+
+    const userDoc = snap.docs[0];
+    await deleteDoc(userDoc.ref);
+    setCurrentUser(null);
+    return { success: true, message: "Account deleted successfully" };
+  }
+
+  return (
+    <accountContext.Provider
+      value={{
+        currentUser,
+        fetchAccount,
+        logout,
+        createAccount,
+        updateAccount,
+        changePassword,
+        deleteAccount,
+      }}
+    >
+      {children}
+    </accountContext.Provider>
+  );
 }

@@ -6,13 +6,13 @@ import {
   FlatList,
   Keyboard,
   Modal,
-  SafeAreaView,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { useAccount } from "../../hooks/useAccount";
 import { useList } from "../../hooks/useList";
 
@@ -21,7 +21,7 @@ export default function List() {
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [list, setList] = useState("");
   const [editingItem, setEditingItem] = useState(null);
-  const [optionsVisible, setOptionsVisible] = useState(null); // which list has 3-dot modal open
+  const [optionsVisible, setOptionsVisible] = useState(null);
 
   const { createList, lists, toggleListDone, deleteList, updateList } = useList();
   const { currentUser } = useAccount();
@@ -65,7 +65,9 @@ export default function List() {
     <SafeAreaView style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.headerText} allowFontScaling={false}>Bucket List</Text>
+        <Text style={styles.headerText} allowFontScaling={false} accessibilityRole="header">
+          Bucket List
+        </Text>
       </View>
 
       {/* Render list items */}
@@ -77,7 +79,8 @@ export default function List() {
             <Checkbox
               value={item.done}
               onValueChange={() => toggleListDone(item.id, !item.done)}
-              color={item.done ? "royalblue" : undefined}
+              color={item.done ? "royalblue" : "gray"} // Fixed incomplete color prop
+              accessibilityLabel={`Mark ${item.text} as done`}
             />
             <Text
               style={[
@@ -91,8 +94,10 @@ export default function List() {
 
             {/* 3 Dots Button */}
             <TouchableOpacity
-              style={{ marginLeft: "auto" }}
+              style={styles.optionsButton}
               onPress={() => setOptionsVisible(item.id)}
+              accessibilityLabel="Options menu"
+              accessibilityRole="button"
             >
               <Ionicons name="ellipsis-vertical" size={20} color="#fff" />
             </TouchableOpacity>
@@ -114,34 +119,41 @@ export default function List() {
                       setList(item.text);
                       setEditModalVisible(true);
                     }}
+                    accessibilityLabel="Edit item"
+                    accessibilityRole="button"
                   >
                     <Text style={styles.optionText}>Edit</Text>
                   </TouchableOpacity>
 
                   <TouchableOpacity
-                    style={styles.optionButton}
+                    style={[styles.optionButton, { borderTopWidth: 1, borderTopColor: "#ddd" }]}
                     onPress={() => {
                       setOptionsVisible(null);
                       handleDelete(item);
                     }}
+                    accessibilityLabel="Delete item"
+                    accessibilityRole="button"
                   >
                     <Text style={[styles.optionText, { color: "red" }]}>Delete</Text>
                   </TouchableOpacity>
 
                   <TouchableOpacity
-                    style={styles.optionButton}
+                    style={[styles.optionButton, { borderTopWidth: 1, borderTopColor: "#ddd" }]}
                     onPress={() => setOptionsVisible(null)}
+                    accessibilityLabel="Close options"
+                    accessibilityRole="button"
                   >
-                    <Text style={styles.optionText}>Exit</Text>
+                    <Text style={styles.optionText}>Close</Text>
                   </TouchableOpacity>
                 </View>
               </View>
             </Modal>
           </View>
         )}
-        contentContainerStyle={{ padding: 20 }}
+        contentContainerStyle={styles.listContent}
+        ItemSeparatorComponent={() => <View style={styles.separator} />}
         ListEmptyComponent={
-          <Text style={{ color: "#aaa", textAlign: "center", marginTop: 20 }}>
+          <Text style={styles.emptyText} accessibilityRole="alert">
             No items yet. Add one!
           </Text>
         }
@@ -151,8 +163,10 @@ export default function List() {
       <TouchableOpacity
         style={styles.fab}
         onPress={() => setModalVisible(true)}
+        accessibilityLabel="Add new item"
+        accessibilityRole="button"
       >
-        <Ionicons name="add" size={32} color="#000" />
+        <Ionicons name="add" size={28} color="#000" />
       </TouchableOpacity>
 
       {/* Add Modal */}
@@ -171,16 +185,24 @@ export default function List() {
               placeholderTextColor="#aaa"
               value={list}
               onChangeText={setList}
+              accessibilityLabel="Add list input"
             />
 
             <View style={styles.buttonRow}>
               <TouchableOpacity
                 style={styles.cancelButton}
                 onPress={() => setModalVisible(false)}
+                accessibilityLabel="Cancel add"
+                accessibilityRole="button"
               >
                 <Text style={styles.cancelText}>Cancel</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.addButton} onPress={handleAdd}>
+              <TouchableOpacity
+                style={styles.addButton}
+                onPress={handleAdd}
+                accessibilityLabel="Add item"
+                accessibilityRole="button"
+              >
                 <Text style={styles.addText}>Add</Text>
               </TouchableOpacity>
             </View>
@@ -204,16 +226,24 @@ export default function List() {
               placeholderTextColor="#aaa"
               value={list}
               onChangeText={setList}
+              accessibilityLabel="Edit list input"
             />
 
             <View style={styles.buttonRow}>
               <TouchableOpacity
                 style={styles.cancelButton}
                 onPress={() => setEditModalVisible(false)}
+                accessibilityLabel="Cancel edit"
+                accessibilityRole="button"
               >
                 <Text style={styles.cancelText}>Cancel</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.addButton} onPress={handleEdit}>
+              <TouchableOpacity
+                style={styles.addButton}
+                onPress={handleEdit}
+                accessibilityLabel="Save changes"
+                accessibilityRole="button"
+              >
                 <Text style={styles.addText}>Save</Text>
               </TouchableOpacity>
             </View>
@@ -230,69 +260,90 @@ const styles = StyleSheet.create({
     backgroundColor: "#000000",
   },
   header: {
-    paddingVertical: 20,
+    paddingVertical: 15,
     alignItems: "center",
+    backgroundColor: "rgba(26, 26, 26, 0.8)",
+    borderBottomLeftRadius: 10,
+    borderBottomRightRadius: 10,
   },
   headerText: {
     color: "#fff",
     fontSize: 22,
     fontWeight: "bold",
-    marginTop: 35,
+  },
+  listContent: {
+    padding: 15,
   },
   listItem: {
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: "#1a1a1a",
-    padding: 15,
+    padding: 12,
     borderRadius: 8,
-    marginBottom: 10,
+    marginBottom: 8,
   },
   listText: {
     color: "#fff",
     fontSize: 16,
     marginLeft: 10,
+    flex: 1,
+  },
+  optionsButton: {
+    marginLeft: "auto",
+  },
+  separator: {
+    height: 1,
+    backgroundColor: "#333",
+    marginVertical: 4,
+  },
+  emptyText: {
+    color: "#aaa",
+    textAlign: "center",
+    marginTop: 20,
+    fontSize: 16,
   },
   fab: {
     position: "absolute",
-    bottom: 30,
-    right: 30,
+    bottom: 20,
+    right: 20,
     backgroundColor: "#fff",
-    width: 60,
-    height: 60,
-    borderRadius: 30,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
     justifyContent: "center",
     alignItems: "center",
     shadowColor: "#000",
-    shadowOpacity: 0.3,
-    shadowOffset: { width: 0, height: 3 },
-    shadowRadius: 4,
-    elevation: 6,
+    shadowOpacity: 0.2,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 3,
+    elevation: 4,
   },
   modalOverlay: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "rgba(0,0,0,0.5)",
+    backgroundColor: "rgba(0,0,0,0.6)",
   },
   modalView: {
     backgroundColor: "#fff",
-    borderRadius: 15,
-    padding: 25,
-    width: "80%",
+    borderRadius: 10,
+    padding: 20,
+    width: "85%",
     alignItems: "center",
   },
   modalTitle: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: "bold",
     marginBottom: 15,
+    color: "#000",
   },
   input: {
     width: "100%",
     borderWidth: 1,
     borderColor: "#ccc",
-    borderRadius: 8,
+    borderRadius: 6,
     padding: 10,
-    marginBottom: 20,
+    marginBottom: 15,
     fontSize: 16,
     color: "#000",
   },
@@ -303,11 +354,11 @@ const styles = StyleSheet.create({
   },
   cancelButton: {
     flex: 1,
-    padding: 12,
+    padding: 10,
     backgroundColor: "#ccc",
-    borderRadius: 8,
+    borderRadius: 6,
     alignItems: "center",
-    marginRight: 10,
+    marginRight: 8,
   },
   cancelText: {
     color: "#000",
@@ -315,11 +366,11 @@ const styles = StyleSheet.create({
   },
   addButton: {
     flex: 1,
-    padding: 12,
+    padding: 10,
     backgroundColor: "royalblue",
-    borderRadius: 8,
+    borderRadius: 6,
     alignItems: "center",
-    marginLeft: 10,
+    marginLeft: 8,
   },
   addText: {
     color: "#fff",
@@ -327,19 +378,19 @@ const styles = StyleSheet.create({
   },
   optionsBox: {
     backgroundColor: "#fff",
-    padding: 20,
-    borderRadius: 10,
+    padding: 15,
+    borderRadius: 8,
     width: "70%",
     alignItems: "center",
   },
   optionButton: {
-    padding: 12,
+    padding: 10,
     width: "100%",
     alignItems: "center",
   },
   optionText: {
     fontSize: 16,
-    fontWeight: "bold",
+    fontWeight: "600",
     color: "#000",
   },
 });

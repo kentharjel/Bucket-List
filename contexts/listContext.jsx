@@ -1,16 +1,16 @@
-import { db } from "@/firebaseConfig";
 import {
-    addDoc,
-    collection,
-    deleteDoc,
-    doc,
-    onSnapshot,
-    query,
-    serverTimestamp,
-    updateDoc,
-    where,
+  addDoc,
+  collection,
+  deleteDoc,
+  doc,
+  onSnapshot,
+  query,
+  serverTimestamp,
+  updateDoc,
+  where,
 } from "firebase/firestore";
 import { createContext, useEffect, useState } from "react";
+import { db } from "../firebaseConfig";
 import { useAccount } from "../hooks/useAccount";
 
 export const listContext = createContext();
