@@ -19,21 +19,30 @@ export function ListProvider({ children }) {
   const [lists, setLists] = useState([]);
   const { currentUser } = useAccount();
 
-  // Realtime fetch user-specific lists
+  // Real-time fetch for user-specific lists
   useEffect(() => {
     if (!currentUser) return;
-    const q = query(collection(db, "List"), where("username", "==", currentUser));
+
+    const q = query(
+      collection(db, "List"),
+      where("userId", "==", currentUser.username) // ✅ match field in createList
+    );
+
     const unsubscribe = onSnapshot(q, (snapshot) => {
       setLists(snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })));
     });
+
     return () => unsubscribe();
   }, [currentUser]);
 
   // Create list
   async function createList(listData) {
-    console.log(listData)
     if (!currentUser) return;
-    await addDoc(collection(db, "List"), listData);
+    await addDoc(collection(db, "List"), {
+      ...listData,
+      createdAt: serverTimestamp(),
+      userId: currentUser.username, // ensure correct userId
+    });
   }
 
   // Toggle done
@@ -42,7 +51,7 @@ export function ListProvider({ children }) {
     await updateDoc(ref, { done });
   }
 
-  // Update list text (or other fields)
+  // Update list text
   async function updateList(id, newData) {
     const ref = doc(db, "List", id);
     await updateDoc(ref, {

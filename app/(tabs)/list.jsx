@@ -15,7 +15,9 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useAccount } from "../../hooks/useAccount";
 import { useList } from "../../hooks/useList";
+import { useTheme } from "../../hooks/useTheme";
 
+// ...imports remain the same
 export default function List() {
   const [modalVisible, setModalVisible] = useState(false);
   const [editModalVisible, setEditModalVisible] = useState(false);
@@ -25,30 +27,23 @@ export default function List() {
 
   const { createList, lists, toggleListDone, deleteList, updateList } = useList();
   const { currentUser } = useAccount();
+  const { isDarkMode, themeStyles } = useTheme();
 
   const handleAdd = async () => {
     Keyboard.dismiss();
-
     if (!list.trim()) {
       Alert.alert("Error!", "List should not be empty");
       return;
     }
 
-    await createList({
-      username: currentUser,
-      text: list,
-      done: false,
-      createdAt: new Date(),
-    });
-
+    await createList({ title: list, items: [] });
     setList("");
     setModalVisible(false);
   };
 
   const handleEdit = async () => {
     if (!list.trim() || !editingItem) return;
-
-    await updateList(editingItem.id, { text: list });
+    await updateList(editingItem.id, { title: list });
     setEditingItem(null);
     setList("");
     setEditModalVisible(false);
@@ -61,45 +56,41 @@ export default function List() {
     ]);
   };
 
+  const headerBg = isDarkMode ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.05)";
+  const headerTextColor = themeStyles.text.color;
+
   return (
-    <SafeAreaView style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <Text style={styles.headerText} allowFontScaling={false} accessibilityRole="header">
+    <SafeAreaView style={[styles.container, { backgroundColor: themeStyles.container.backgroundColor }]}>
+      {/* Header matches Profile header */}
+      <View style={[styles.profileHeader, { backgroundColor: headerBg }]}>
+        <Text style={[styles.profileHeaderText, { color: headerTextColor }]}>
           Bucket List
         </Text>
       </View>
 
-      {/* Render list items */}
+      {/* List Items */}
       <FlatList
         data={lists}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
-          <View style={styles.listItem}>
+          <View style={[styles.listItem, { backgroundColor: isDarkMode ? "#1a1a1a" : "#fff" }]}>
             <Checkbox
               value={item.done}
               onValueChange={() => toggleListDone(item.id, !item.done)}
-              color={item.done ? "royalblue" : "gray"} // Fixed incomplete color prop
-              accessibilityLabel={`Mark ${item.text} as done`}
+              color={item.done ? "royalblue" : "gray"}
             />
             <Text
               style={[
                 styles.listText,
+                { color: themeStyles.text.color },
                 item.done && { textDecorationLine: "line-through", color: "#888" },
               ]}
-              allowFontScaling={false}
             >
-              {item.text}
+              {item.title}
             </Text>
 
-            {/* 3 Dots Button */}
-            <TouchableOpacity
-              style={styles.optionsButton}
-              onPress={() => setOptionsVisible(item.id)}
-              accessibilityLabel="Options menu"
-              accessibilityRole="button"
-            >
-              <Ionicons name="ellipsis-vertical" size={20} color="#fff" />
+            <TouchableOpacity style={styles.optionsButton} onPress={() => setOptionsVisible(item.id)}>
+              <Ionicons name="ellipsis-vertical" size={20} color={isDarkMode ? "#fff" : "#000"} />
             </TouchableOpacity>
 
             {/* Options Modal */}
@@ -116,11 +107,9 @@ export default function List() {
                     onPress={() => {
                       setOptionsVisible(null);
                       setEditingItem(item);
-                      setList(item.text);
+                      setList(item.title);
                       setEditModalVisible(true);
                     }}
-                    accessibilityLabel="Edit item"
-                    accessibilityRole="button"
                   >
                     <Text style={styles.optionText}>Edit</Text>
                   </TouchableOpacity>
@@ -131,8 +120,6 @@ export default function List() {
                       setOptionsVisible(null);
                       handleDelete(item);
                     }}
-                    accessibilityLabel="Delete item"
-                    accessibilityRole="button"
                   >
                     <Text style={[styles.optionText, { color: "red" }]}>Delete</Text>
                   </TouchableOpacity>
@@ -140,8 +127,6 @@ export default function List() {
                   <TouchableOpacity
                     style={[styles.optionButton, { borderTopWidth: 1, borderTopColor: "#ddd" }]}
                     onPress={() => setOptionsVisible(null)}
-                    accessibilityLabel="Close options"
-                    accessibilityRole="button"
                   >
                     <Text style={styles.optionText}>Close</Text>
                   </TouchableOpacity>
@@ -151,246 +136,77 @@ export default function List() {
           </View>
         )}
         contentContainerStyle={styles.listContent}
-        ItemSeparatorComponent={() => <View style={styles.separator} />}
-        ListEmptyComponent={
-          <Text style={styles.emptyText} accessibilityRole="alert">
-            No items yet. Add one!
-          </Text>
-        }
+        ItemSeparatorComponent={() => <View style={{ height: 1, backgroundColor: isDarkMode ? "#333" : "#ccc", marginVertical: 4 }} />}
+        ListEmptyComponent={<Text style={[styles.emptyText, { color: isDarkMode ? "#aaa" : "#555" }]}>No items yet. Add one!</Text>}
       />
 
       {/* Floating Add Button */}
-      <TouchableOpacity
-        style={styles.fab}
-        onPress={() => setModalVisible(true)}
-        accessibilityLabel="Add new item"
-        accessibilityRole="button"
-      >
-        <Ionicons name="add" size={28} color="#000" />
+      <TouchableOpacity style={styles.fab} onPress={() => setModalVisible(true)}>
+        <Ionicons name="add" size={28} color={isDarkMode ? "#000" : "#fff"} />
       </TouchableOpacity>
 
-      {/* Add Modal */}
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={() => setModalVisible(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalView}>
-            <Text style={styles.modalTitle}>Add List</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Enter your bucket list..."
-              placeholderTextColor="#aaa"
-              value={list}
-              onChangeText={setList}
-              accessibilityLabel="Add list input"
-            />
+      {/* Add/Edit Modals */}
+      {["add", "edit"].map((mode) => {
+        const visible = mode === "add" ? modalVisible : editModalVisible;
+        const onClose = mode === "add" ? () => setModalVisible(false) : () => setEditModalVisible(false);
+        const onSubmit = mode === "add" ? handleAdd : handleEdit;
+        const titleText = mode === "add" ? "Add List" : "Edit List";
 
-            <View style={styles.buttonRow}>
-              <TouchableOpacity
-                style={styles.cancelButton}
-                onPress={() => setModalVisible(false)}
-                accessibilityLabel="Cancel add"
-                accessibilityRole="button"
-              >
-                <Text style={styles.cancelText}>Cancel</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.addButton}
-                onPress={handleAdd}
-                accessibilityLabel="Add item"
-                accessibilityRole="button"
-              >
-                <Text style={styles.addText}>Add</Text>
-              </TouchableOpacity>
+        return (
+          <Modal key={mode} animationType="slide" transparent visible={visible} onRequestClose={onClose}>
+            <View style={styles.modalOverlay}>
+              <View style={[styles.modalView, { backgroundColor: isDarkMode ? "#222" : "#fff" }]}>
+                <Text style={[styles.modalTitle, { color: isDarkMode ? "#fff" : "#000" }]}>{titleText}</Text>
+                <TextInput
+                  style={[styles.input, { color: isDarkMode ? "#fff" : "#000", borderColor: isDarkMode ? "#555" : "#ccc" }]}
+                  placeholder="Enter your bucket list..."
+                  placeholderTextColor={isDarkMode ? "#888" : "#aaa"}
+                  value={list}
+                  onChangeText={setList}
+                />
+                <View style={styles.buttonRow}>
+                  <TouchableOpacity style={[styles.cancelButton, { backgroundColor: isDarkMode ? "#555" : "#ccc" }]} onPress={onClose}>
+                    <Text style={[styles.cancelText, { color: isDarkMode ? "#fff" : "#000" }]}>Cancel</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={styles.addButton} onPress={onSubmit}>
+                    <Text style={styles.addText}>{mode === "add" ? "Add" : "Save"}</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
             </View>
-          </View>
-        </View>
-      </Modal>
-
-      {/* Edit Modal */}
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={editModalVisible}
-        onRequestClose={() => setEditModalVisible(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalView}>
-            <Text style={styles.modalTitle}>Edit List</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Edit your bucket list..."
-              placeholderTextColor="#aaa"
-              value={list}
-              onChangeText={setList}
-              accessibilityLabel="Edit list input"
-            />
-
-            <View style={styles.buttonRow}>
-              <TouchableOpacity
-                style={styles.cancelButton}
-                onPress={() => setEditModalVisible(false)}
-                accessibilityLabel="Cancel edit"
-                accessibilityRole="button"
-              >
-                <Text style={styles.cancelText}>Cancel</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.addButton}
-                onPress={handleEdit}
-                accessibilityLabel="Save changes"
-                accessibilityRole="button"
-              >
-                <Text style={styles.addText}>Save</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-      </Modal>
+          </Modal>
+        );
+      })}
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#000000",
-  },
-  header: {
-    paddingVertical: 15,
+  container: { flex: 1 },
+  profileHeader: {
+    paddingVertical: 20,
     alignItems: "center",
-    backgroundColor: "rgba(26, 26, 26, 0.8)",
     borderBottomLeftRadius: 10,
     borderBottomRightRadius: 10,
   },
-  headerText: {
-    color: "#fff",
-    fontSize: 22,
-    fontWeight: "bold",
-  },
-  listContent: {
-    padding: 15,
-  },
-  listItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#1a1a1a",
-    padding: 12,
-    borderRadius: 8,
-    marginBottom: 8,
-  },
-  listText: {
-    color: "#fff",
-    fontSize: 16,
-    marginLeft: 10,
-    flex: 1,
-  },
-  optionsButton: {
-    marginLeft: "auto",
-  },
-  separator: {
-    height: 1,
-    backgroundColor: "#333",
-    marginVertical: 4,
-  },
-  emptyText: {
-    color: "#aaa",
-    textAlign: "center",
-    marginTop: 20,
-    fontSize: 16,
-  },
-  fab: {
-    position: "absolute",
-    bottom: 20,
-    right: 20,
-    backgroundColor: "#fff",
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    justifyContent: "center",
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOpacity: 0.2,
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 3,
-    elevation: 4,
-  },
-  modalOverlay: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "rgba(0,0,0,0.6)",
-  },
-  modalView: {
-    backgroundColor: "#fff",
-    borderRadius: 10,
-    padding: 20,
-    width: "85%",
-    alignItems: "center",
-  },
-  modalTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
-    marginBottom: 15,
-    color: "#000",
-  },
-  input: {
-    width: "100%",
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 6,
-    padding: 10,
-    marginBottom: 15,
-    fontSize: 16,
-    color: "#000",
-  },
-  buttonRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    width: "100%",
-  },
-  cancelButton: {
-    flex: 1,
-    padding: 10,
-    backgroundColor: "#ccc",
-    borderRadius: 6,
-    alignItems: "center",
-    marginRight: 8,
-  },
-  cancelText: {
-    color: "#000",
-    fontWeight: "bold",
-  },
-  addButton: {
-    flex: 1,
-    padding: 10,
-    backgroundColor: "royalblue",
-    borderRadius: 6,
-    alignItems: "center",
-    marginLeft: 8,
-  },
-  addText: {
-    color: "#fff",
-    fontWeight: "bold",
-  },
-  optionsBox: {
-    backgroundColor: "#fff",
-    padding: 15,
-    borderRadius: 8,
-    width: "70%",
-    alignItems: "center",
-  },
-  optionButton: {
-    padding: 10,
-    width: "100%",
-    alignItems: "center",
-  },
-  optionText: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#000",
-  },
+  profileHeaderText: { fontSize: 24, fontWeight: "bold" },
+
+  listContent: { padding: 15 },
+  listItem: { flexDirection: "row", alignItems: "center", padding: 12, borderRadius: 8, marginBottom: 8 },
+  listText: { fontSize: 16, marginLeft: 10, flex: 1 },
+  optionsButton: { marginLeft: "auto" },
+  emptyText: { textAlign: "center", marginTop: 20, fontSize: 16 },
+  fab: { position: "absolute", bottom: 20, right: 20, width: 56, height: 56, borderRadius: 28, justifyContent: "center", alignItems: "center", shadowColor: "#000", shadowOpacity: 0.2, shadowOffset: { width: 0, height: 2 }, shadowRadius: 3, elevation: 4, backgroundColor: "royalblue" },
+  modalOverlay: { flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: "rgba(0,0,0,0.6)" },
+  modalView: { borderRadius: 10, padding: 20, width: "85%", alignItems: "center" },
+  modalTitle: { fontSize: 18, fontWeight: "bold", marginBottom: 15 },
+  input: { width: "100%", borderWidth: 1, borderRadius: 6, padding: 10, marginBottom: 15, fontSize: 16 },
+  buttonRow: { flexDirection: "row", justifyContent: "space-between", width: "100%" },
+  cancelButton: { flex: 1, padding: 10, borderRadius: 6, alignItems: "center", marginRight: 8 },
+  cancelText: { fontWeight: "bold" },
+  addButton: { flex: 1, padding: 10, backgroundColor: "royalblue", borderRadius: 6, alignItems: "center", marginLeft: 8 },
+  addText: { color: "#fff", fontWeight: "bold" },
+  optionsBox: { backgroundColor: "#fff", padding: 15, borderRadius: 8, width: "70%", alignItems: "center" },
+  optionButton: { padding: 10, width: "100%", alignItems: "center" },
+  optionText: { fontSize: 16, fontWeight: "600" },
 });
