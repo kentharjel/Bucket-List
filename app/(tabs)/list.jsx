@@ -17,7 +17,6 @@ import { useAccount } from "../../hooks/useAccount";
 import { useList } from "../../hooks/useList";
 import { useTheme } from "../../hooks/useTheme";
 
-// ...imports remain the same
 export default function List() {
   const [modalVisible, setModalVisible] = useState(false);
   const [editModalVisible, setEditModalVisible] = useState(false);
@@ -36,7 +35,7 @@ export default function List() {
       return;
     }
 
-    await createList({ title: list, items: [] });
+    await createList({ title: list, items: [], done: false });
     setList("");
     setModalVisible(false);
   };
@@ -59,18 +58,19 @@ export default function List() {
   const headerBg = isDarkMode ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.05)";
   const headerTextColor = themeStyles.text.color;
 
+  // ✅ Only show unchecked items
+  const visibleLists = lists.filter((item) => !item.done);
+
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: themeStyles.container.backgroundColor }]}>
-      {/* Header matches Profile header */}
+      {/* Header */}
       <View style={[styles.profileHeader, { backgroundColor: headerBg }]}>
-        <Text style={[styles.profileHeaderText, { color: headerTextColor }]}>
-          Bucket List
-        </Text>
+        <Text style={[styles.profileHeaderText, { color: headerTextColor }]}>Bucket List</Text>
       </View>
 
       {/* List Items */}
       <FlatList
-        data={lists}
+        data={visibleLists}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <View style={[styles.listItem, { backgroundColor: isDarkMode ? "#1a1a1a" : "#fff" }]}>
@@ -136,8 +136,14 @@ export default function List() {
           </View>
         )}
         contentContainerStyle={styles.listContent}
-        ItemSeparatorComponent={() => <View style={{ height: 1, backgroundColor: isDarkMode ? "#333" : "#ccc", marginVertical: 4 }} />}
-        ListEmptyComponent={<Text style={[styles.emptyText, { color: isDarkMode ? "#aaa" : "#555" }]}>No items yet. Add one!</Text>}
+        ItemSeparatorComponent={() => (
+          <View style={{ height: 1, backgroundColor: isDarkMode ? "#333" : "#ccc", marginVertical: 4 }} />
+        )}
+        ListEmptyComponent={
+          <Text style={[styles.emptyText, { color: isDarkMode ? "#aaa" : "#555" }]}>
+            No items yet. Add one!
+          </Text>
+        }
       />
 
       {/* Floating Add Button */}
@@ -158,14 +164,20 @@ export default function List() {
               <View style={[styles.modalView, { backgroundColor: isDarkMode ? "#222" : "#fff" }]}>
                 <Text style={[styles.modalTitle, { color: isDarkMode ? "#fff" : "#000" }]}>{titleText}</Text>
                 <TextInput
-                  style={[styles.input, { color: isDarkMode ? "#fff" : "#000", borderColor: isDarkMode ? "#555" : "#ccc" }]}
+                  style={[
+                    styles.input,
+                    { color: isDarkMode ? "#fff" : "#000", borderColor: isDarkMode ? "#555" : "#ccc" },
+                  ]}
                   placeholder="Enter your bucket list..."
                   placeholderTextColor={isDarkMode ? "#888" : "#aaa"}
                   value={list}
                   onChangeText={setList}
                 />
                 <View style={styles.buttonRow}>
-                  <TouchableOpacity style={[styles.cancelButton, { backgroundColor: isDarkMode ? "#555" : "#ccc" }]} onPress={onClose}>
+                  <TouchableOpacity
+                    style={[styles.cancelButton, { backgroundColor: isDarkMode ? "#555" : "#ccc" }]}
+                    onPress={onClose}
+                  >
                     <Text style={[styles.cancelText, { color: isDarkMode ? "#fff" : "#000" }]}>Cancel</Text>
                   </TouchableOpacity>
                   <TouchableOpacity style={styles.addButton} onPress={onSubmit}>
@@ -190,13 +202,27 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: 10,
   },
   profileHeaderText: { fontSize: 24, fontWeight: "bold" },
-
   listContent: { padding: 15 },
   listItem: { flexDirection: "row", alignItems: "center", padding: 12, borderRadius: 8, marginBottom: 8 },
   listText: { fontSize: 16, marginLeft: 10, flex: 1 },
   optionsButton: { marginLeft: "auto" },
   emptyText: { textAlign: "center", marginTop: 20, fontSize: 16 },
-  fab: { position: "absolute", bottom: 20, right: 20, width: 56, height: 56, borderRadius: 28, justifyContent: "center", alignItems: "center", shadowColor: "#000", shadowOpacity: 0.2, shadowOffset: { width: 0, height: 2 }, shadowRadius: 3, elevation: 4, backgroundColor: "royalblue" },
+  fab: {
+    position: "absolute",
+    bottom: 20,
+    right: 20,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    justifyContent: "center",
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOpacity: 0.2,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 3,
+    elevation: 4,
+    backgroundColor: "royalblue",
+  },
   modalOverlay: { flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: "rgba(0,0,0,0.6)" },
   modalView: { borderRadius: 10, padding: 20, width: "85%", alignItems: "center" },
   modalTitle: { fontSize: 18, fontWeight: "bold", marginBottom: 15 },
